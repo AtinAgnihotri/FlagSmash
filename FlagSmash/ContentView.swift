@@ -8,48 +8,40 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var showingAlert = false
+
+    var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Russia", "Spain", "UK", "US"].shuffled()
+    var correctAns = Int.random(in: 0...2)
+    @State private var showingScore = false
     
     var body: some View {
         ZStack {
-//            Color.accentColor.frame(width: 200, height: 200, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-            Color(red: 1, green: 0.8, blue: 0.5).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-            LinearGradient(gradient: Gradient(colors: [Color.white, Color.black]), startPoint: .top, endPoint: .bottom).opacity(0.6).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-            RadialGradient(gradient: Gradient(colors: [Color.orange, Color(red: 1, green: 1, blue: 1)]), center: .top, startRadius: 20, endRadius: 200).opacity(0.6).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-            AngularGradient(gradient: Gradient(colors: [Color.purple, Color.blue, Color.green, Color.yellow, Color.orange, Color.red]), center: .bottom ).opacity(0.5).edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-            VStack {
-                HStack {
-                    Text("1").padding()
-                    Text("2").padding()
-                    Text("3").padding()
+            Color.gray.edgesIgnoringSafeArea(.all)
+            VStack (spacing: 30){
+                Spacer()
+                VStack{
+                    Text("Tap the flag of: ")
+                        .font(.title)
+                        .foregroundColor(.white)
+                    Text(countries[correctAns])
+                        .font(.title)
+                        .foregroundColor(.white)
                 }
-                HStack {
-                    Text("4").padding()
-                    Text("5").padding()
-                    Text("6").padding()
-                }
-                HStack {
-                    Text("7").padding()
-                    Text("8").padding()
-                    Text("9").padding()
-                }
-                Button(action: {
-                    self.showingAlert = true
-                }) {
-                    HStack (spacing: 10){
-                        Image(systemName: "pencil.tip")
-                            .renderingMode(.original)
-                            .padding()
-                        Text("Tap Me")
-                            .padding()
+                Spacer()
+                ForEach(0..<3) { number in
+                    Button(action: {
+                        checkAnswer(userAns: number)
+                    }) {
+                       Image(countries[number])
                     }
                 }
-                	.border(Color.black, width: 1)
-                .alert(isPresented: $showingAlert, content: {
-                    Alert(title: Text("Hello, SwiftUI"), message: Text("This is some detail message"), dismissButton: .default(Text("Okay")))
-                })
+                Spacer()
+                
             }
         }
+    }
+    
+    func checkAnswer(userAns: Int) {
+        
     }
 }
 
