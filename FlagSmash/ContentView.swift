@@ -9,9 +9,11 @@ import SwiftUI
 
 struct ContentView: View {
 
-    var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Russia", "Spain", "UK", "US"].shuffled()
-    var correctAns = Int.random(in: 0...2)
+    @State private var userScore = 0
+    @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Russia", "Spain", "UK", "US"].shuffled()
+    @State private var correctAns = Int.random(in: 0...2)
     @State private var showingScore = false
+    @State private var scoreTitle = ""
     
     var body: some View {
         ZStack {
@@ -29,7 +31,7 @@ struct ContentView: View {
                 Spacer()
                 ForEach(0..<3) { number in
                     Button(action: {
-                        checkAnswer(userAns: number)
+                        checkAnswer(number)
                     }) {
                        Image(countries[number])
                     }
@@ -37,11 +39,27 @@ struct ContentView: View {
                 Spacer()
                 
             }
+        }.alert(isPresented: $showingScore) {
+            Alert(title: Text(scoreTitle), message: Text("Your score is \(userScore)"), dismissButton: .default(Text("Continue")) {
+                self.askQuestion()
+            })
         }
     }
     
-    func checkAnswer(userAns: Int) {
+    func checkAnswer(_ userAns: Int) {
+        if userAns == correctAns {
+            scoreTitle = "Correct"
+            userScore += 1
+        } else {
+            scoreTitle = "Wrong"
+        }
         
+        showingScore = true
+    }
+    
+    func askQuestion() {
+        countries.shuffle()
+        correctAns = Int.random(in: 0...2)
     }
 }
 
