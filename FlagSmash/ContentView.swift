@@ -14,10 +14,14 @@ struct ContentView: View {
     @State private var correctAns = Int.random(in: 0...2)
     @State private var showingScore = false
     @State private var scoreTitle = ""
+    var lastCountry: String {
+        countries[correctAns]
+    }
     
     var body: some View {
         ZStack {
-            Color.gray.edgesIgnoringSafeArea(.all)
+            LinearGradient(gradient: Gradient(colors: [Color.blue, Color.black]), startPoint: .top, endPoint: .bottom)
+                .edgesIgnoringSafeArea(.all)
             VStack (spacing: 30){
                 Spacer()
                 VStack{
@@ -25,7 +29,8 @@ struct ContentView: View {
                         .font(.title)
                         .foregroundColor(.white)
                     Text(countries[correctAns])
-                        .font(.title)
+                        .font(.largeTitle)
+                        .fontWeight(.black)
                         .foregroundColor(.white)
                 }
                 Spacer()
@@ -35,7 +40,11 @@ struct ContentView: View {
                     }) {
                        Image(countries[number])
                     }
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(Color.black, lineWidth: 3))
+                    .shadow(color: .black, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/ )
                 }
+                Spacer()
                 Spacer()
                 
             }
@@ -58,8 +67,13 @@ struct ContentView: View {
     }
     
     func askQuestion() {
+        let lastCountry = countries[correctAns]
         countries.shuffle()
-        correctAns = Int.random(in: 0...2)
+        // So that the next country is not the same as the last one
+        repeat {
+            correctAns = Int.random(in: 0...2)
+            print("Running loop")
+        } while lastCountry == countries[correctAns]
     }
 }
 
