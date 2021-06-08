@@ -7,6 +7,37 @@
 
 import SwiftUI
 
+struct DismissAnimation: ViewModifier {
+    let isAnswerCorrect: Bool
+    let number: Int
+    let correctRotationDegrees: [Double]
+    let incorrectRotationDegrees: [Double]
+    let isAnswerSelected: Bool
+    
+    init(isAnswerCorrect: Bool, isAnswerSelected: Bool, number: Int, correctRotationDegrees: inout [Double],
+         incorrectRotationDegrees: inout [Double]) {
+        self.isAnswerCorrect = isAnswerCorrect
+        self.number =  number
+        self.correctRotationDegrees = correctRotationDegrees
+        self.incorrectRotationDegrees = incorrectRotationDegrees
+        self.isAnswerSelected = isAnswerSelected
+
+    }
+    
+    func body(content: Content) -> some View {
+        let xAxis: CGFloat = self.isAnswerCorrect ? 0.0 : 1.0
+        let yAxis: CGFloat = self.isAnswerCorrect ? 1.0 : 0.0
+        
+        return content
+
+            .rotation3DEffect(
+                .degrees(self.isAnswerCorrect ? correctRotationDegrees[number] : incorrectRotationDegrees[number]),
+                axis: (x: xAxis, y: yAxis, z: 0.0)
+        )
+
+    }
+}
+
 struct ContentView: View {
 
     @State private var userScore = 0
@@ -18,6 +49,7 @@ struct ContentView: View {
     @State private var correctRotationDegrees = [0.0, 0.0, 0.0]
     @State private var incorrectRotationDegrees = [0.0, 0.0, 0.0]
     @State private var alertMessage = ""
+    @State private var isAnsCorrect = false
     var lastCountry: String {
         countries[correctAns]
     }
@@ -43,19 +75,14 @@ struct ContentView: View {
                         checkAnswer(number)
                     }) {
                        Image(countries[number])
-                        .opacity(ansSelected ? self.correctAns == number ? 1 : 0.75 : 1)
+                        .opacity(ansSelected ? self.correctAns == number ? 1 : 0.2 : 1)
+                        .transition(.asymmetric(insertion: .scale, removal: .opacity))
                     }
                     .clipShape(Capsule())
                     .overlay(Capsule().stroke(Color.black, lineWidth: 3))
                     .shadow(color: .black, radius: 10 )
-                    .rotation3DEffect(
-                        .degrees(self.correctRotationDegrees[number]),
-                        axis: (x: 0.0, y: 1.0, z: 0.0)
-                    )
-                    .rotation3DEffect(
-                        .degrees(self.incorrectRotationDegrees[number]),
-                        axis: (x: 0.0, y: 0.0, z: 1.0)
-                    )
+                    .modifier(DismissAnimation(isAnswerCorrect: isAnsCorrect, isAnswerSelected: ansSelected, number: number, correctRotationDegrees: &self.correctRotationDegrees, incorrectRotationDegrees: &self.incorrectRotationDegrees ))
+
                     
                 }
   
@@ -63,23 +90,23 @@ struct ContentView: View {
                 Spacer()
                 
             }
-            .alert(isPresented: $showingScore) {
-                Alert(title: Text(scoreTitle), message: Text(alertMessage), dismissButton: .default(Text("Continue")) {
-    //                self.askQuestion()
-                })
-            }
+//            .alert(isPresented: $showingScore) {
+//                Alert(title: Text(scoreTitle), message: Text(alertMessage), dismissButton: .default(Text("Continue")) {
+//                    self.askQuestion()
+//                })
+//            }
         }
         
     }
     
     func checkAnswer(_ userAns: Int) {
-        if userAns == correctAns {
+        isAnsCorrect = userAns == correctAns
+        if isAnsCorrect {
             scoreTitle = "Correct"
             userScore += 1
             withAnimation {
                 self.correctRotationDegrees[userAns] += 360
             }
-            
         } else {
             scoreTitle = "Wrong"
             showingScore = true
@@ -89,7 +116,6 @@ struct ContentView: View {
             }
         }
         
-//        showingScore = true
         ansSelected = true
         
         self.askQuestion()
